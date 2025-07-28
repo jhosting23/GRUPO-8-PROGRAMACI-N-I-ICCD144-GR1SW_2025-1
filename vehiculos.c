@@ -1,7 +1,10 @@
-// vehiculos.c - funciones para validar las placas y datos del vehiculo 
-// Creada por: mathias , jhostin , christian 
+// vehiculos.c - funciones para validar las placas y datos del vehiculo
+// Creada por: mathias, jhostin, christian
 
-#include "vehiculos.h"
+#include "vehiculos.h" // Incluye vehiculos.h que a su vez incluye matricula.h
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h> // Para atoi, atof
 
 // Función para limpiar el buffer
 void limpiar_entrada() {
@@ -9,11 +12,11 @@ void limpiar_entrada() {
 	while ((c = getchar()) != '\n' && c != EOF);
 }
 
-// Validar la palaca con su debido formato 
+// Validar la placa con su debido formato
 int validar_placa(char* placa) {
 	// Verificar longitud
 	if (strlen(placa) != 8) {
-		return 0;  // No válida
+		return 0; // No válida
 	}
 	
 	// Verificar que tenga el formato correcto
@@ -36,7 +39,7 @@ int validar_placa(char* placa) {
 		}
 	}
 	
-	return 1;  // Es válida
+	return 1; // Es válida
 }
 
 // Validar cédula solo que tenga 10 números
@@ -59,31 +62,32 @@ int validar_cedula(char* cedula) {
 int validar_cilindraje(int cilindraje) {
 	// Rangos de cilindraje en cc
 	if (cilindraje < 50 || cilindraje > 8000) {
-		return 0;  // Fuera del rango válido
+		return 0; // Fuera del rango válido
 	}
-	return 1;  // Es válido
+	return 1; // Es válido
 }
 
 // Verificar si el vehículo ya está registrado
 int vehiculo_ya_existe(char* placa) {
 	FILE* archivo = fopen(ARCHIVO_VEHICULOS, "r");
 	if (archivo == NULL) {
-		return 0;  // Si no existe el archivo, no hay vehículos
+		return 0; // Si no existe el archivo, no hay vehículos
 	}
 	
 	char linea[MAX_LINEA2];
 	char placa_archivo[10];
 	
 	while (fgets(linea, sizeof(linea), archivo)) {
+		// Asumiendo que la placa es el primer campo en la línea
 		sscanf(linea, "%9[^,]", placa_archivo);
 		if (strcmp(placa_archivo, placa) == 0) {
 			fclose(archivo);
-			return 1;  // Ya existe
+			return 1; // Ya existe
 		}
 	}
 	
 	fclose(archivo);
-	return 0;  // No existe
+	return 0; // No existe
 }
 
 // Función principal para registrar un vehículo
@@ -92,6 +96,7 @@ int registrar_vehiculo() {
 	char cedula[15];
 	char nombre[50];
 	char tipo[20];
+	char subtipo[20];
 	int anio;
 	float valor;
 	int cilindraje;
@@ -106,7 +111,7 @@ int registrar_vehiculo() {
 		// Convertir a mayúsculas
 		for (int i = 0; i < strlen(placa); i++) {
 			if (placa[i] >= 'a' && placa[i] <= 'z') {
-				placa[i] = placa[i] - 32;  // Convertir a mayúscula mediante la tabal ASCII
+				placa[i] = placa[i] - 32; // Convertir a mayúscula mediante la tabal ASCII
 			}
 		}
 		
@@ -123,15 +128,15 @@ int registrar_vehiculo() {
 		if (vehiculo_ya_existe(placa)) {
 			system("cls");
 			printf("\n=== REGISTRO DE VEHICULO ===\n");
-			printf("ERROR: Este vehiculo ya está registrado.\n");
+			printf("ERROR: Este vehiculo ya esta registrado.\n");
 			printf("Intente con otra placa.\n\n");
 			continue;
 		}
 		
-		break; // Placa válida, salir del bucle
+		break; // Placa válida
 	} while (1);
 	
-	// Pedir cédula con un blucle 
+	// Pedir cédula con un bucle
 	do {
 		printf("Ingrese cedula del propietario (10 digitos): ");
 		scanf("%s", cedula);
@@ -145,14 +150,14 @@ int registrar_vehiculo() {
 			continue;
 		}
 		
-		break; // Cédula válida, salir del bucle
+		break; // Cédula válida
 	} while (1);
 	
 	// Pedir nombre
 	printf("Ingrese nombre del propietario: ");
-	limpiar_entrada();
+	limpiar_entrada(); // Limpiar el buffer antes de fgets
 	fgets(nombre, sizeof(nombre), stdin);
-	nombre[strlen(nombre)-1] = '\0';  // Quitar el \n
+	nombre[strcspn(nombre, "\n")] = '\0'; // Quitar el \n de fgets de forma segura
 	
 	// Pedir tipo de vehículo con un bucle
 	do {
@@ -166,7 +171,7 @@ int registrar_vehiculo() {
 			}
 		}
 		
-		// Validar tipo básico
+		// Validar
 		if (strcmp(tipo, "PARTICULAR") != 0 && strcmp(tipo, "COMERCIAL") != 0) {
 			system("cls");
 			printf("\n=== REGISTRO DE VEHICULO ===\n");
@@ -178,8 +183,69 @@ int registrar_vehiculo() {
 			continue;
 		}
 		
-		break; // Tipo válido, salir del bucle
+		break; 
 	} while (1);
+	
+	// Pedir subtipo según el tipo principal
+	if (strcmp(tipo, "PARTICULAR") == 0) {
+		// Si es PARTICULAR, preguntar si es motocicleta
+		do {
+			printf("¿Es motocicleta? (SI/NO): ");
+			char respuesta[5];
+			scanf("%s", respuesta);
+			
+			// Convertir a mayúsculas
+			for (int i = 0; i < strlen(respuesta); i++) {
+				if (respuesta[i] >= 'a' && respuesta[i] <= 'z') {
+					respuesta[i] = respuesta[i] - 32;
+				}
+			}
+			
+			if (strcmp(respuesta, "SI") == 0) {
+				strcpy(subtipo, "MOTOCICLETA");
+				break;
+			} else if (strcmp(respuesta, "NO") == 0) {
+				// Si no es motocicleta, preguntar si es liviano o pesado
+				do {
+					printf("Ingrese subtipo (LIVIANO/PESADO): ");
+					scanf("%s", subtipo);
+					
+					// Convertir a mayúsculas
+					for (int i = 0; i < strlen(subtipo); i++) {
+						if (subtipo[i] >= 'a' && subtipo[i] <= 'z') {
+							subtipo[i] = subtipo[i] - 32;
+						}
+					}
+					
+					if (strcmp(subtipo, "LIVIANO") == 0 || strcmp(subtipo, "PESADO") == 0) {
+						break; // Subtipo válido
+					} else {
+						system("cls");
+						printf("\n=== REGISTRO DE VEHICULO ===\n");
+						printf("Placa: %s (Validada)\n", placa);
+						printf("Cedula: %s (Validada)\n", cedula);
+						printf("Nombre: %s\n", nombre);
+						printf("Tipo: %s (Validado)\n", tipo);
+						printf("ERROR: Subtipo debe ser LIVIANO o PESADO\n");
+						printf("Intente nuevamente.\n\n");
+					}
+				} while (1);
+				break;
+			} else {
+				system("cls");
+				printf("\n=== REGISTRO DE VEHICULO ===\n");
+				printf("Placa: %s (Validada)\n", placa);
+				printf("Cedula: %s (Validada)\n", cedula);
+				printf("Nombre: %s\n", nombre);
+				printf("Tipo: %s (Validado)\n", tipo);
+				printf("ERROR: Respuesta debe ser SI o NO\n");
+				printf("Intente nuevamente.\n\n");
+			}
+		} while (1);
+	} else {
+		// Si es COMERCIAL, no pregunta subtipo, asigna valor por defecto
+		strcpy(subtipo, "COMERCIAL");
+	}
 	
 	// Pedir año con validación en bucle
 	do {
@@ -193,7 +259,8 @@ int registrar_vehiculo() {
 			printf("Cedula: %s (Validada)\n", cedula);
 			printf("Nombre: %s\n", nombre);
 			printf("Tipo: %s (Validado)\n", tipo);
-			printf("ERROR: Año debe estar entre 1990 y 2025\n");
+			printf("Subtipo: %s (Validado)\n", subtipo);
+			printf("ERROR: Año debe estar entre 1990 y %d\n", ANO_FISCAL); // Usamos ANO_FISCAL
 			printf("Intente nuevamente.\n\n");
 			continue;
 		}
@@ -213,13 +280,14 @@ int registrar_vehiculo() {
 			printf("Cedula: %s (Validada)\n", cedula);
 			printf("Nombre: %s\n", nombre);
 			printf("Tipo: %s (Validado)\n", tipo);
+			printf("Subtipo: %s (Validado)\n", subtipo);
 			printf("Año: %d (Validado)\n", anio);
 			printf("ERROR: El valor debe ser mayor a 0\n");
 			printf("Intente nuevamente.\n\n");
 			continue;
 		}
 		
-		break; // Valor válido, salir del bucle
+		break; // Valor válido
 	} while (1);
 	
 	// Pedir cilindraje del motor un bucle
@@ -234,6 +302,7 @@ int registrar_vehiculo() {
 			printf("Cedula: %s (Validada)\n", cedula);
 			printf("Nombre: %s\n", nombre);
 			printf("Tipo: %s (Validado)\n", tipo);
+			printf("Subtipo: %s (Validado)\n", subtipo);
 			printf("Año: %d (Validado)\n", anio);
 			printf("Valor: $%.2f (Validado)\n", valor);
 			printf("ERROR: El cilindraje debe estar entre 50 y 8000 cc\n");
@@ -247,13 +316,13 @@ int registrar_vehiculo() {
 	// Guardar en archivo
 	FILE* archivo = fopen(ARCHIVO_VEHICULOS, "a");
 	if (archivo == NULL) {
-		printf("ERROR: No se pudo abrir el archivo\n");
+		printf("ERROR: No se pudo abrir el archivo %s para escritura.\n", ARCHIVO_VEHICULOS);
 		return 0;
 	}
 	
-	// Escribir los datos seprados con las comas 
-	fprintf(archivo, "%s,%s,%s,%s,%d,%.2f,%d\n", 
-			placa, cedula, nombre, tipo, anio, valor, cilindraje);
+	// Escribir los datos separados con las comas (agregando subtipo)
+	fprintf(archivo, "%s,%s,%s,%s,%s,%d,%.2f,%d\n",
+			placa, cedula, nombre, tipo, subtipo, anio, valor, cilindraje);
 	
 	fclose(archivo);
 	
@@ -261,6 +330,7 @@ int registrar_vehiculo() {
 	printf("Placa: %s\n", placa);
 	printf("Propietario: %s\n", nombre);
 	printf("Tipo: %s\n", tipo);
+	printf("Subtipo: %s\n", subtipo);
 	printf("Cilindraje: %d cc\n", cilindraje);
 	
 	return 1;
@@ -270,7 +340,7 @@ int registrar_vehiculo() {
 int buscar_vehiculo() {
 	char placa_buscar[10];
 	char linea[MAX_LINEA2];
-	char placa[10], cedula[15], nombre[50], tipo[20];
+	char placa[10], cedula[15], nombre[50], tipo[20], subtipo[20];
 	int anio, cilindraje;
 	float valor;
 	
@@ -299,21 +369,23 @@ int buscar_vehiculo() {
 	
 	FILE* archivo = fopen(ARCHIVO_VEHICULOS, "r");
 	if (archivo == NULL) {
-		printf("No hay vehiculos registrados.\n");
+		printf("No hay vehiculos registrados o no se pudo abrir el archivo %s.\n", ARCHIVO_VEHICULOS);
 		return 0;
 	}
 	
-	// Buscar en el archivo
+	// El formato de lectura debe coincidir con el formato de escritura en registrar_vehiculo
 	while (fgets(linea, sizeof(linea), archivo)) {
-		sscanf(linea, "%9[^,],%14[^,],%49[^,],%19[^,],%d,%f,%d",
-			   placa, cedula, nombre, tipo, &anio, &valor, &cilindraje);
+		// Formato: PLACA,CEDULA,NOMBRE,TIPO,SUBTIPO,ANIO,VALOR,CILINDRAJE
+		int items_leidos = sscanf(linea, "%9[^,],%14[^,],%49[^,],%19[^,],%19[^,],%d,%f,%d",
+								  placa, cedula, nombre, tipo, subtipo, &anio, &valor, &cilindraje);
 		
-		if (strcmp(placa, placa_buscar) == 0) {
+		if (items_leidos == 8 && strcmp(placa, placa_buscar) == 0) {
 			printf("\n=== VEHICULO ENCONTRADO ===\n");
 			printf("Placa: %s\n", placa);
 			printf("Propietario: %s\n", nombre);
 			printf("Cedula: %s\n", cedula);
 			printf("Tipo: %s\n", tipo);
+			printf("Subtipo: %s\n", subtipo);
 			printf("Año: %d\n", anio);
 			printf("Valor: $%.2f\n", valor);
 			printf("Cilindraje: %d cc\n", cilindraje);
@@ -321,8 +393,48 @@ int buscar_vehiculo() {
 			return 1;
 		}
 	}
-	
 	fclose(archivo);
 	printf("Vehiculo con placa %s no encontrado.\n", placa_buscar);
 	return 0;
+}
+// Esta función llena la estructura DatosVehiculo que es esperada por matricula.c
+int obtener_datos_vehiculo_para_calculo_desde_archivo(const char* placa_buscada, DatosVehiculo* vehiculo_data) {
+	FILE* archivo = fopen(ARCHIVO_VEHICULOS, "r");
+	if (archivo == NULL) {
+		printf("Error: No se pudo abrir el archivo de vehiculos en '%s'.\n", ARCHIVO_VEHICULOS);
+		return 0;
+	}
+	char linea[MAX_LINEA2];
+	char placa_leida[10];
+	char cedula[15]; // No se usan pero se leen
+	char nombre[50]; // No se usan pero se leen
+	char tipo_str[20];
+	char subtipo_str[20];
+	int anio;      // No se usan pero se leen 
+	float avaluo;
+	int cilindraje;
+	
+	while (fgets(linea, sizeof(linea), archivo)) {
+		// Formato:PLACA,CEDULA,NOMBRE,TIPO,SUBTIPO,ANIO,AVALUO,CILINDRAJE
+		int items_leidos = sscanf(linea, "%9[^,],%14[^,],%49[^,],%19[^,],%19[^,],%d,%f,%d",
+								  placa_leida, cedula, nombre, tipo_str, subtipo_str,
+								  &anio, &avaluo, &cilindraje);
+		
+		if (items_leidos == 8) { // Verifica que se hayan leído todos los 8 campos esperados
+			if (strcmp(placa_leida, placa_buscada) == 0) {
+				// Si la placa coincide, copiar los datos relevantes a la estructura DatosVehiculo
+				strcpy(vehiculo_data->placa, placa_leida);
+				strcpy(vehiculo_data->tipo, tipo_str);
+				strcpy(vehiculo_data->subtipo, subtipo_str);
+				vehiculo_data->avaluo = avaluo;
+				vehiculo_data->cilindraje = cilindraje;
+				// Los campos tiene_multas, valor_multas y meses_retraso se piden al usuario en menu_calculo_matricula
+				fclose(archivo);
+				return 1; // Vehículo encontrado
+			}
+		}
+	}
+	
+	fclose(archivo);
+	return 0; // Vehículo no encontrado
 }

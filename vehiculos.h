@@ -5,11 +5,12 @@
 #define VEHICULOS_H
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
+#include <stdlib.h> // Para funciones como system()
 
-// Constantes básicas
+// Constantes basicas
 #define ARCHIVO_VEHICULOS "vehiculos.txt"
 #define MAX_LINEA2 250
+#include "matricula.h" 
 
 // Funciones principales que vamos a usar
 int registrar_vehiculo();
@@ -23,5 +24,8 @@ int validar_cilindraje(int cilindraje);
 // Funciones auxiliares
 int vehiculo_ya_existe(char* placa);
 void limpiar_entrada();
+// Implementacion de una nueva funcion Para obtener los datos de un vehículo del archivo y llenarlos en una estructura DatosVehiculo
+// Necesaria para que matricula.c pueda acceder a los datos del archivo
+int obtener_datos_vehiculo_para_calculo_desde_archivo(const char* placa, DatosVehiculo* vehiculo_data);
 
 #endif
