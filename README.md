@@ -80,6 +80,10 @@ gcc -o MiProyecto.exe main.c matricula.c vehiculos.c pagos.c
 
 ---
 
+https://github.com/user-attachments/assets/401466f5-53a8-499b-be7f-2a17b76e0e86
+
+
+
 ## Manual de Usuario
 
 1. Inicie el programa y acceda con su usuario y contraseña.
