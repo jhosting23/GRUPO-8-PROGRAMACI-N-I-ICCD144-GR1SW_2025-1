@@ -115,8 +115,8 @@ https://github.com/user-attachments/assets/7cfbb74f-3de7-446b-b985-4c0b0a661dc8
 ## Ramas del Proyecto
 
 - `main`: Rama principal (código estable)
-- `desarrollo`: Rama de desarrollo activo
-- `backup/*`: Ramas de respaldo automático
+- `rama-mathias`: Rama para trabajo colaborativo
+- `rama-christian`: Rama para trabajo colaborativo
 
 ---
 
