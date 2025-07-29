@@ -144,7 +144,7 @@ El sistema está optimizado para Windows, pero el código es portable con peque�
 ## Contacto
 
 ¿Dudas o sugerencias?  
-Contacta a los autores a través de los canales oficiales de la universidad o abre un issue en el repositorio.
+Puede abrir un issue en el repositorio.
 
 ---
 
